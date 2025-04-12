@@ -20,12 +20,12 @@
 
         body {
             margin: 0;
-            padding: 20px;
+            padding: 0px;
             font-family: 'Courier New', monospace;
             background: var(--matrix-dark);
             color: var(--matrix-green);
             min-height: 100vh;
-			opacity: 0.68;
+			opacity: 0.78;
 		 -webkit-backdrop-filter: blur(8px);
         }
 
@@ -35,7 +35,7 @@
             bottom: 20px;
             right: 20px;
             z-index: 1000;
-			opacity: 0.99;
+			opacity: 1.99;
 		 -webkit-backdrop-filter: blur(8px);
         }
 
@@ -81,7 +81,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            opacity: 0;
+            opacity: 0.01;
             transform: translateY(20px) scale(0.9);
             pointer-events: none;
             transition: all 0.3s ease;
@@ -90,9 +90,11 @@
         }
 
         .chat-window.open {
-            opacity: 1;
+            opacity: .91;
             transform: translateY(0) scale(1);
             pointer-events: all;
+			 backdrop-filter: blur(68px);
+            -webkit-backdrop-filter: blur(68px);
         }
 
         /* Chat header */
@@ -342,7 +344,7 @@
     </style>
 </head>
 <body>
-    <!-- Container principal 
+    <! Container principal 
     <div class="container">
         <div class="header">
             <h2>FNW Custom Chat Demo</h2>
@@ -352,7 +354,7 @@
 			<br> São Paulo SP Brasil</p>
 			<p>+55 11 9 1159 5028 </p>
         </div>
-    </div>-->
+    </div>
 
     <!-- Container do chat -->
     <div class="chat-container">
