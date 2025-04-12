@@ -25,6 +25,8 @@
             background: var(--matrix-dark);
             color: var(--matrix-green);
             min-height: 100vh;
+			opacity: 0.68;
+		 -webkit-backdrop-filter: blur(8px);
         }
 
         /* Chat container */
@@ -33,6 +35,8 @@
             bottom: 20px;
             right: 20px;
             z-index: 1000;
+			opacity: 0.99;
+		 -webkit-backdrop-filter: blur(8px);
         }
 
         /* Chat toggle button */
@@ -69,8 +73,8 @@
             bottom: 70px;
             right: 0;
             width: 360px;
-            height: 600px;
-            background-color: rgba(0, 0, 0, 0.9);
+            height: 650px;
+            background-color: rgba(0, 0, 0, 0.85);
             border: 1px solid var(--matrix-green);
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
@@ -81,6 +85,8 @@
             transform: translateY(20px) scale(0.9);
             pointer-events: none;
             transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
 
         .chat-window.open {
@@ -92,10 +98,12 @@
         /* Chat header */
         .chat-header {
             padding: 1rem;
-            background-color: var(--header-background);
+            background-color: rgba(0, 0, 0, 0.95);
             border-bottom: 1px solid var(--matrix-green);
             display: flex;
             align-items: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .chat-header-logo {
@@ -110,7 +118,7 @@
         .chat-title {
             color: var(--matrix-green);
             margin: 0;
-            font-size: 1.2em;
+            font-size: 1.4em;
             text-shadow: var(--matrix-glow);
         }
 
@@ -127,6 +135,9 @@
             padding: 1rem;
             overflow-y: auto;
             display: none;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
 
         .chat-messages.active {
@@ -144,24 +155,30 @@
 
         .message-bot {
             background-color: rgba(0, 255, 65, 0.1);
-            color: var(--matrix-green);
+            color: var(--bot-message-color);
             margin-right: 48px;
             box-shadow: var(--matrix-glow);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
 
         .message-user {
-            background-color: var(--user-message-background);
+            background-color: rgba(10, 31, 10, 0.8);
             color: var(--matrix-green);
             margin-left: auto;
             border: 1px solid var(--matrix-green);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
 
         /* Input area */
         .chat-input-container {
             padding: 12px;
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: rgba(0, 0, 0, 0.95);
             border-top: 1px solid var(--matrix-green);
             display: none;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .chat-input-container.active {
@@ -177,6 +194,8 @@
             color: var(--matrix-green);
             font-family: 'Courier New', monospace;
             outline: none;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
         }
 
         .chat-input:focus {
@@ -220,7 +239,7 @@
             height: 8px;
             background-color: var(--matrix-green);
             border-radius: 50%;
-            margin: 0 2px;
+            margin: 4 2px;
             animation: typingAnimation 1.5s infinite ease-in-out;
             box-shadow: var(--matrix-glow);
         }
@@ -230,7 +249,7 @@
         }
 
         .typing-dot:nth-child(3) {
-            animation-delay: 1s;
+            animation-delay: 3s;
         }
 
         @keyframes typingAnimation {
@@ -326,8 +345,11 @@
     <!-- Container principal -->
     <div class="container">
         <div class="header">
-            <h1>FNW Custom Chat Demo</h1>
-          <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>  <p>FNW -Assessoria Digital<br> São Paulo SP Brasil</p>
+            <h2>FNW Custom Chat Demo</h2>
+			<h4>Alex Sobral</h4>
+			<h4>  Davi H. Geraldo</h4>
+          <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>  <p>FNW -Assessoria Digital
+			<br> São Paulo SP Brasil</p>
 			<p>+55 11 9 1159 5028 </p>
         </div>
     </div>
@@ -368,7 +390,7 @@
 
             <!-- Área de entrada de texto -->
             <div class="chat-input-container">
-                <input type="text" class="chat-input" placeholder="Digite sua mensagem...">
+                <input type="text" class="chat-input" placeholder="Type your message...">
                 <button class="chat-send-button">
                     <svg viewBox="0 0 24 24">
                         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
@@ -378,7 +400,7 @@
 
             <!-- Rodapé do chat -->
             <div class="chat-footer">
-                © 2025 Chat Demo
+                 © 2025 Chat Demo
             </div>
         </div>
     </div>
