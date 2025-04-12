@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Chat - Agent Bourne</title>
+    <style>
+        :root {
+            /* Matrix theme colors */
+            --matrix-green: #00FF41;
+            --matrix-dark: #000000;
+            --matrix-glow: 0 0 10px var(--matrix-green);
+            
+            /* Chat colors */
+            --subtitle-color: var(--matrix-green);
+            --header-background: #000000;
+            --user-message-background: #0a1f0a;
+            --bot-message-color: var(--matrix-green);
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            background: var(--matrix-dark);
+            color: var(--matrix-green);
+            min-height: 100vh;
+        }
+
+        /* Chat container */
+        .chat-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        /* Chat toggle button */
+        .chat-toggle {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--matrix-dark);
+            border: 2px solid var(--matrix-green);
+            box-shadow: var(--matrix-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chat-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--matrix-green);
+        }
+
+        .chat-toggle img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--matrix-green);
+        }
+
+        /* Chat window */
+        .chat-window {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            width: 360px;
+            height: 600px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--matrix-green);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px) scale(0.9);
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .chat-window.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+        }
+
+        /* Chat header */
+        .chat-header {
+            padding: 1rem;
+            background-color: var(--header-background);
+            border-bottom: 1px solid var(--matrix-green);
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-header-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid var(--matrix-green);
+            box-shadow: var(--matrix-glow);
+        }
+
+        .chat-title {
+            color: var(--matrix-green);
+            margin: 0;
+            font-size: 1.2em;
+            text-shadow: var(--matrix-glow);
+        }
+
+        .chat-subtitle {
+            color: var(--subtitle-color);
+            margin: 0;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        /* Messages area */
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .chat-messages.active {
+            display: block;
+        }
+
+        .message {
+            max-width: 80%;
+            margin-bottom: 10px;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid var(--matrix-green);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .message-bot {
+            background-color: rgba(0, 255, 65, 0.1);
+            color: var(--matrix-green);
+            margin-right: 48px;
+            box-shadow: var(--matrix-glow);
+        }
+
+        .message-user {
+            background-color: var(--user-message-background);
+            color: var(--matrix-green);
+            margin-left: auto;
+            border: 1px solid var(--matrix-green);
+        }
+
+        /* Input area */
+        .chat-input-container {
+            padding: 12px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border-top: 1px solid var(--matrix-green);
+            display: none;
+        }
+
+        .chat-input-container.active {
+            display: flex;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--matrix-green);
+            border-radius: 5px;
+            color: var(--matrix-green);
+            font-family: 'Courier New', monospace;
+            outline: none;
+        }
+
+        .chat-input:focus {
+            box-shadow: var(--matrix-glow);
+        }
+
+        .chat-send-button {
+            width: 36px;
+            height: 36px;
+            margin-left: 10px;
+            background-color: transparent;
+            border: 1px solid var(--matrix-green);
+            border-radius: 5px;
+            color: var(--matrix-green);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .chat-send-button:hover:not(:disabled) {
+            background-color: var(--matrix-green);
+            color: var(--matrix-dark);
+            box-shadow: var(--matrix-glow);
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--matrix-green);
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typingAnimation 1.5s infinite ease-in-out;
+            box-shadow: var(--matrix-glow);
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 1s;
+        }
+
+        @keyframes typingAnimation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scrollbar customization */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--matrix-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--matrix-green);
+            border-radius: 5px;
+        }
+
+        /* Welcome screen */
+        .chat-welcome {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--matrix-green);
+        }
+
+        .welcome-title {
+            color: var(--matrix-green);
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            text-shadow: var(--matrix-glow);
+            text-align: center;
+        }
+
+        .welcome-button {
+            padding: 1rem 3rem;
+            background-color: transparent;
+            border: 2px solid var(--matrix-green);
+            color: var(--matrix-green);
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--matrix-glow);
+        }
+
+        .welcome-button:hover {
+            background-color: var(--matrix-green);
+            color: var(--matrix-dark);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--matrix-green);
+        }
+
+        .welcome-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 255, 65, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .welcome-button:hover::before {
+            left: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Container principal -->
+    <div class="container">
+        <div class="header">
+            <h1>FNW Custom Chat Demo</h1>
+            <p>FNW -Assessoria Digital São Paulo SP Brasil</p>
+			<p>+55 11 9 1150 5028 </p>
+        </div>
+    </div>
+
+    <!-- Container do chat -->
+    <div class="chat-container">
+        <!-- Botão para abrir/fechar o chat -->
+        <div class="chat-toggle">
+            <img src="https://d1yei2z3i6k35z.cloudfront.net/3119789/67f9b8f071647_avatar.webp" alt="Logo">
+        </div>
+
+        <!-- Janela do chat -->
+        <div class="chat-window">
+            <!-- Cabeçalho do chat -->
+            <div class="chat-header">
+                <img class="chat-header-logo" src="https://d1yei2z3i6k35z.cloudfront.net/3119789/67f9b8f071647_avatar.webp" alt="Logo">
+                <div class="chat-header-content">
+                    <h3 class="chat-title">AGB - Demo</h3>
+                    <p class="chat-subtitle">Real Time Feedback</p>
+                </div>
+            </div>
+
+            <!-- Tela de boas-vindas -->
+            <div class="chat-welcome">
+                <h3 class="welcome-title">Welcome to AGB Chat</h3>
+                <button class="welcome-button">Start</button>
+            </div>
+
+            <!-- Área de mensagens -->
+            <div class="chat-messages">
+                <!-- Mensagens aparecerão aqui -->
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+
+            <!-- Área de entrada de texto -->
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" placeholder="Digite sua mensagem...">
+                <button class="chat-send-button">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Rodapé do chat -->
+            <div class="chat-footer">
+                © 2025 Chat Demo
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const chatToggle = document.querySelector('.chat-toggle');
+            const chatWindow = document.querySelector('.chat-window');
+            const chatWelcome = document.querySelector('.chat-welcome');
+            const welcomeButton = document.querySelector('.welcome-button');
+            const chatMessages = document.querySelector('.chat-messages');
+            const chatInputContainer = document.querySelector('.chat-input-container');
+            const chatInput = document.querySelector('.chat-input');
+            const sendButton = document.querySelector('.chat-send-button');
+            const typingIndicator = document.querySelector('.typing-indicator');
+            
+            // Webhook URL
+            const webhookUrl = 'https://52fapypk.rcsrv.com/webhook/26c6bc9d-6a94-4c95-a5db-6f60615340c5';
+            
+            // Initial messages
+            const initialMessages = [
+                'Hi there! 👋',
+                'My name is Nathan Webster. How can I assist you today?'
+            ];
+            
+            // Toggle chat window
+            chatToggle.addEventListener('click', function() {
+                chatWindow.classList.toggle('open');
+            });
+            
+            // Start conversation when welcome button is clicked
+            welcomeButton.addEventListener('click', function() {
+                chatWelcome.style.display = 'none';
+                chatMessages.classList.add('active');
+                chatInputContainer.classList.add('active');
+                
+                // Show initial messages
+                setTimeout(() => {
+                    initialMessages.forEach((message, index) => {
+                        setTimeout(() => {
+                            addMessage(message, 'bot');
+                        }, index * 1000);
+                    });
+                }, 500);
+            });
+            
+            // Send message on button click or enter key
+            sendButton.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Function to send message
+            function sendMessage() {
+                const messageText = chatInput.value.trim();
+                if (!messageText) return;
+                
+                // Disable input and button while waiting for response
+                chatInput.disabled = true;
+                sendButton.disabled = true;
+                
+                // Add user message to chat
+                addMessage(messageText, 'user');
+                chatInput.value = '';
+                
+                // Show typing indicator
+                typingIndicator.classList.add('active');
+                
+                // Criar XMLHttpRequest
+                const xhr = new XMLHttpRequest();
+                
+                // Definir timeout
+                xhr.timeout = 30000; // 30 segundos
+                
+                // Configurar manipuladores de eventos
+                xhr.onload = function() {
+                    // Hide typing indicator
+                    typingIndicator.classList.remove('active');
+                    
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            // Primeiro tenta analisar como JSON
+                            const responseText = xhr.responseText;
+                            
+                            // Verifica se a resposta está vazia
+                            if (!responseText || responseText.trim() === '') {
+                                addMessage('Resposta vazia recebida do servidor.', 'bot');
+                                return;
+                            }
+                            
+                            // Tenta processar como JSON
+                            try {
+                                const data = JSON.parse(responseText);
+                                
+                                // Verifica se a resposta contém uma mensagem
+                                if (data.message) {
+                                    addMessage(data.message, 'bot');
+                                } else if (typeof data === 'string') {
+                                    // Se o JSON for uma string direta
+                                    addMessage(data, 'bot');
+                                } else if (Array.isArray(data)) {
+                                    // Se a resposta for um array de mensagens
+                                    data.forEach((message, index) => {
+                                        if (typeof message === 'string') {
+                                            setTimeout(() => {
+                                                addMessage(message, 'bot');
+                                            }, index * 1000);
+                                        } else if (message.message) {
+                                            setTimeout(() => {
+                                                addMessage(message.message, 'bot');
+                                            }, index * 1000);
+                                        }
+                                    });
+                                } else if (typeof data === 'object') {
+                                    // Se for um objeto, verifica se há alguma propriedade útil
+                                    const possibleKeys = ['message', 'text', 'response', 'reply', 'answer'];
+                                    let foundMessage = false;
+                                    
+                                    for (const key of possibleKeys) {
+                                        if (data[key] && typeof data[key] === 'string') {
+                                            addMessage(data[key], 'bot');
+                                            foundMessage = true;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (!foundMessage) {
+                                        // Último recurso: exibir o JSON como texto
+                                        addMessage('Resposta do servidor: ' + JSON.stringify(data), 'bot');
+                                    }
+                                } else {
+                                    // Último recurso: exibir o JSON como texto
+                                    addMessage('Resposta do servidor: ' + JSON.stringify(data), 'bot');
+                                }
+                            } catch (e) {
+                                // Se não for JSON válido, trata como texto simples
+                                console.warn('Resposta não é um JSON válido, tratando como texto:', e);
+                                
+                                // Tenta exibir a resposta como texto simples
+                                if (responseText && typeof responseText === 'string') {
+                                    addMessage(responseText, 'bot');
+                                } else {
+                                    addMessage('Recebi uma resposta, mas não consegui processá-la.', 'bot');
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Erro ao processar resposta:', e);
+                            addMessage('Ocorreu um erro ao processar a resposta.', 'bot');
+                        }
+                    } else {
+                        addMessage(`Erro ${xhr.status}: ${xhr.statusText}. Por favor, tente novamente.`, 'bot');
+                    }
+                };
+                
+                xhr.onerror = function() {
+                    console.error('Erro na requisição');
+                    typingIndicator.classList.remove('active');
+                    addMessage('Não foi possível conectar ao servidor. Verifique sua conexão.', 'bot');
+                };
+                
+                xhr.ontimeout = function() {
+                    typingIndicator.classList.remove('active');
+                    addMessage('A resposta está demorando mais do que o esperado. Por favor, aguarde ou tente novamente mais tarde.', 'bot');
+                };
+                
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        // Re-enable input and button after response
+                        chatInput.disabled = false;
+                        sendButton.disabled = false;
+                        chatInput.focus();
+                    }
+                };
+                
+                // Abrir conexão e enviar a requisição
+                xhr.open('POST', webhookUrl, true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                
+                // Montar os dados a serem enviados
+                const data = JSON.stringify({
+                    message: messageText,
+                    language: 'pt'
+                });
+                
+                // Enviar a requisição
+                xhr.send(data);
+            }
+            
+            // Function to add message to chat
+            function addMessage(text, sender) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', `message-${sender}`);
+                messageElement.textContent = text;
+                
+                // Insert before typing indicator
+                chatMessages.insertBefore(messageElement, typingIndicator);
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
