@@ -350,13 +350,53 @@
         .container {
             position: relative;
             z-index: 1;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.5s ease;
+        }
+
+        .container .header {
+            position: relative;
+        }
+
+        .container .header * {
+            transition: opacity 0.5s ease;
+        }
+
+        .matrix-fade {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0;
+        }
+
+        .matrix-fade.active {
             opacity: 1;
         }
 
-        .container.hidden {
+        .matrix-character {
+            position: absolute;
+            color: var(--matrix-green);
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            animation: matrixFall 1.5s linear forwards;
+        }
+
+        @keyframes matrixFall {
+            0% {
+                transform: translateY(-20px);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+
+        .container.hidden .header * {
             opacity: 0;
-            pointer-events: none;
         }
 
         .info-toggle {
@@ -695,12 +735,55 @@
             // Existing elements...
             const container = document.querySelector('.container');
             const infoToggle = document.querySelector('.info-toggle');
+            const header = container.querySelector('.header');
             
-            // Toggle info visibility
+            // Criar elemento para o efeito Matrix
+            const matrixFade = document.createElement('div');
+            matrixFade.className = 'matrix-fade';
+            container.appendChild(matrixFade);
+
+            // Caracteres para o efeito Matrix
+            const matrixChars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ/*-+<>[]{}=_\\|abcdefghijklmnopqrstuvwxyz';
+
+            function createMatrixEffect(showing) {
+                matrixFade.innerHTML = '';
+                matrixFade.classList.add('active');
+
+                const width = container.offsetWidth;
+                const height = container.offsetHeight;
+                const columns = Math.floor(width / 20); // Espaçamento entre caracteres
+
+                for (let i = 0; i < columns; i++) {
+                    const delay = Math.random() * 1.5;
+                    const x = i * 20;
+
+                    for (let j = 0; j < 10; j++) { // Número de caracteres por coluna
+                        const char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+                        const element = document.createElement('span');
+                        element.className = 'matrix-character';
+                        element.textContent = char;
+                        element.style.left = `${x}px`;
+                        element.style.top = '0';
+                        element.style.animationDelay = `${delay + (j * 0.1)}s`;
+                        matrixFade.appendChild(element);
+                    }
+                }
+
+                setTimeout(() => {
+                    matrixFade.classList.remove('active');
+                    if (!showing) {
+                        container.classList.add('hidden');
+                    } else {
+                        container.classList.remove('hidden');
+                    }
+                }, 2000);
+            }
+
+            // Toggle info visibility com efeito Matrix
             infoToggle.addEventListener('click', function() {
-                container.classList.toggle('hidden');
-                // Salva o estado no localStorage
-                localStorage.setItem('fnwInfoVisible', !container.classList.contains('hidden'));
+                const isHidden = container.classList.contains('hidden');
+                createMatrixEffect(isHidden);
+                localStorage.setItem('fnwInfoVisible', isHidden);
             });
 
             // Recupera o estado salvo
