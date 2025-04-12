@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrix Chat - Agent Bourne</title>
+    <title>Matrix Chat - Agent Bourne  2.8</title>
     <style>
         :root {
             /* Matrix theme colors */
@@ -24,9 +24,9 @@
             font-family: 'Courier New', monospace;
             background: none(--matrix-dark);
             color: var(--matrix-green);
-            opacity: 0.77;
-            -webkit-backdrop-filter: blur(8px);
-            overflow: hidden; /* Prevent scrolling */
+           /* min-height: 100vh; */
+			opacity: 0.77;
+		 -webkit-backdrop-filter: blur(8px);
         }
 
         /* Chat container */
@@ -35,7 +35,8 @@
             bottom: 20px;
             right: 20px;
             z-index: 1000;
-            pointer-events: all;
+			opacity: 1.99;
+		 -webkit-backdrop-filter: blur(8px);
         }
 
         /* Chat toggle button */
@@ -45,19 +46,17 @@
             border-radius: 50%;
             background-color: var(--matrix-dark);
             border: 2px solid var(--matrix-green);
-            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+            box-shadow: var(--matrix-glow);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            z-index: 1000;
-            position: relative;
         }
 
         .chat-toggle:hover {
             transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+            box-shadow: 0 0 20px var(--matrix-green);
         }
 
         .chat-toggle img {
@@ -75,24 +74,31 @@
             right: 0;
             width: 370px;
             height: 600px;
-            background-color: rgba(0, 0, 0, 0.95);
+            max-width: 95vw;
+            max-height: 80vh;
+            background-color: rgba(0, 0, 0, 0.85);
             border: 1px solid var(--matrix-green);
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            opacity: 0;
+            opacity: 0.01;
             transform: translateY(20px) scale(0.9);
             pointer-events: none;
             transition: all 0.3s ease;
-            z-index: 1001;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
 
         .chat-window.open {
-            opacity: 1;
+            opacity: .91;
             transform: translateY(0) scale(1);
+            width: 370px;
+            height: 600px;
             pointer-events: all;
+            backdrop-filter: blur(68px);
+            -webkit-backdrop-filter: blur(68px);
         }
 
         /* Chat header */
@@ -340,43 +346,12 @@
             left: 100%;
         }
 
-        /* Info Toggle Button */
-        .info-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: transparent;
-            border: 2px solid var(--matrix-green);
-            color: var(--matrix-green);
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            transition: all 0.3s ease;
-            z-index: 1002;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.9em;
-            box-shadow: var(--matrix-glow);
-        }
-
-        .info-toggle:hover {
-            background: var(--matrix-green);
-            color: var(--matrix-dark);
-            box-shadow: 0 0 20px var(--matrix-green);
-            transform: translateY(-2px);
-        }
-
         /* Container principal - FNW Info */
         .container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            position: relative;
+            z-index: 1;
             transition: opacity 0.3s ease;
-            z-index: -1;
+            opacity: 1;
         }
 
         .container.hidden {
@@ -384,10 +359,25 @@
             pointer-events: none;
         }
 
-        /* Remove Matrix effect styles */
-        .matrix-fade,
-        .matrix-character {
-            display: none;
+        .info-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: 1px solid var(--matrix-green);
+            color: var(--matrix-green);
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .info-toggle:hover {
+            background: var(--matrix-green);
+            color: var(--matrix-dark);
+            box-shadow: var(--matrix-glow);
         }
 
         /* Media queries for responsiveness */
@@ -514,59 +504,20 @@
             const chatInput = document.querySelector('.chat-input');
             const sendButton = document.querySelector('.chat-send-button');
             const typingIndicator = document.querySelector('.typing-indicator');
-            const container = document.querySelector('.container');
-            const infoToggle = document.querySelector('.info-toggle');
-
-            // Function to toggle chat
-            function toggleChat() {
-                console.log('Toggling chat');
-                chatWindow.classList.toggle('open');
-                
-                if (chatWindow.classList.contains('open')) {
-                    console.log('Chat opened');
-                    if (!chatMessages.classList.contains('active')) {
-                        chatWelcome.style.display = 'flex';
-                    }
-                    window.parent.postMessage('chat-opened', '*');
-                } else {
-                    console.log('Chat closed');
-                    window.parent.postMessage('chat-closed', '*');
-                }
-            }
-
-            // Toggle chat window on button click
-            chatToggle.addEventListener('click', function(e) {
-                console.log('Chat toggle clicked');
-                e.preventDefault();
-                e.stopPropagation();
-                toggleChat();
-            });
-
-            // Listen for messages from parent window
-            window.addEventListener('message', function(event) {
-                console.log('Message received:', event.data);
-                if (event.data === 'toggle-chat') {
-                    toggleChat();
-                }
-            });
-
-            // Toggle info visibility (simplified, without Matrix effect)
-            infoToggle.addEventListener('click', function() {
-                container.classList.toggle('hidden');
-                localStorage.setItem('fnwInfoVisible', container.classList.contains('hidden'));
-            });
-
-            // Recupera o estado salvo
-            const infoVisible = localStorage.getItem('fnwInfoVisible');
-            if (infoVisible === 'false') {
-                container.classList.add('hidden');
-            }
-
+            
+            // Webhook URL
+            const webhookUrl = 'https://52fapypk.rcsrv.com/webhook/26c6bc9d-6a94-4c95-a5db-6f60615340c5';
+            
             // Initial messages
             const initialMessages = [
                 'Hi there! 👋',
                 'I am the AGB. Which pill do you need today?'
             ];
+            
+            // Toggle chat window
+            chatToggle.addEventListener('click', function() {
+                chatWindow.classList.toggle('open');
+            });
             
             // Start conversation when welcome button is clicked
             welcomeButton.addEventListener('click', function() {
@@ -739,6 +690,23 @@
                 
                 // Scroll to bottom
                 chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Existing elements...
+            const container = document.querySelector('.container');
+            const infoToggle = document.querySelector('.info-toggle');
+            
+            // Toggle info visibility
+            infoToggle.addEventListener('click', function() {
+                container.classList.toggle('hidden');
+                // Salva o estado no localStorage
+                localStorage.setItem('fnwInfoVisible', !container.classList.contains('hidden'));
+            });
+
+            // Recupera o estado salvo
+            const infoVisible = localStorage.getItem('fnwInfoVisible');
+            if (infoVisible === 'false') {
+                container.classList.add('hidden');
             }
         });
     </script>
