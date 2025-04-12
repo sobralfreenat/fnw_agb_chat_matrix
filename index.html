@@ -346,23 +346,66 @@
             left: 100%;
         }
 
+        /* Info Toggle Button */
+        .info-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: 2px solid var(--matrix-green);
+            color: var(--matrix-green);
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+            z-index: 1002;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9em;
+            box-shadow: var(--matrix-glow);
+        }
+
+        .info-toggle:hover {
+            background: var(--matrix-green);
+            color: var(--matrix-dark);
+            box-shadow: 0 0 20px var(--matrix-green);
+            transform: translateY(-2px);
+        }
+
         /* Container principal - FNW Info */
         .container {
-            position: relative;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 1;
             transition: opacity 0.5s ease;
+            pointer-events: none;
         }
 
         .container .header {
             position: relative;
+            pointer-events: auto;
         }
 
-        .container .header * {
-            transition: opacity 0.5s ease;
+        .container.hidden {
+            opacity: 0;
         }
 
+        /* Chat container - Mantendo independente do container principal */
+        .chat-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            pointer-events: auto;
+        }
+
+        /* Matrix effect container */
         .matrix-fade {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
@@ -370,6 +413,7 @@
             pointer-events: none;
             z-index: 2;
             opacity: 0;
+            background: transparent;
         }
 
         .matrix-fade.active {
@@ -382,6 +426,7 @@
             font-family: 'Courier New', monospace;
             font-size: 14px;
             animation: matrixFall 1.5s linear forwards;
+            text-shadow: 0 0 5px var(--matrix-green);
         }
 
         @keyframes matrixFall {
@@ -395,29 +440,259 @@
             }
         }
 
-        .container.hidden .header * {
-            opacity: 0;
+        /* Ensure chat window stays above matrix effect */
+        .chat-window {
+            z-index: 1001;
         }
 
-        .info-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: transparent;
-            border: 1px solid var(--matrix-green);
+        .chat-window.open {
+            opacity: .91;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+        }
+
+        .chat-header {
+            padding: 1rem;
+            background-color: rgba(0, 0, 0, 0.95);
+            border-bottom: 1px solid var(--matrix-green);
+            display: flex;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .chat-header-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid var(--matrix-green);
+            box-shadow: var(--matrix-glow);
+        }
+
+        .chat-title {
             color: var(--matrix-green);
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            transition: all 0.3s ease;
-            z-index: 2;
+            margin: 0;
+            font-size: 1.4em;
+            text-shadow: var(--matrix-glow);
         }
 
-        .info-toggle:hover {
-            background: var(--matrix-green);
+        .chat-subtitle {
+            color: var(--subtitle-color);
+            margin: 0;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        /* Messages area */
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: none;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .chat-messages.active {
+            display: block;
+        }
+
+        .message {
+            max-width: 80%;
+            margin-bottom: 10px;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid var(--matrix-green);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .message-bot {
+            background-color: rgba(0, 255, 65, 0.1);
+            color: var(--bot-message-color);
+            margin-right: 48px;
+            box-shadow: var(--matrix-glow);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .message-user {
+            background-color: rgba(10, 31, 10, 0.8);
+            color: var(--matrix-green);
+            margin-left: auto;
+            border: 1px solid var(--matrix-green);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        /* Input area */
+        .chat-input-container {
+            padding: 12px;
+            background-color: rgba(0, 0, 0, 0.95);
+            border-top: 1px solid var(--matrix-green);
+            display: none;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .chat-input-container.active {
+            display: flex;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--matrix-green);
+            border-radius: 5px;
+            color: var(--matrix-green);
+            font-family: 'Courier New', monospace;
+            outline: none;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .chat-input:focus {
+            box-shadow: var(--matrix-glow);
+        }
+
+        .chat-send-button {
+            width: 36px;
+            height: 36px;
+            margin-left: 10px;
+            background-color: transparent;
+            border: 1px solid var(--matrix-green);
+            border-radius: 5px;
+            color: var(--matrix-green);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .chat-send-button:hover:not(:disabled) {
+            background-color: var(--matrix-green);
             color: var(--matrix-dark);
             box-shadow: var(--matrix-glow);
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--matrix-green);
+            border-radius: 50%;
+            margin: 4 2px;
+            animation: typingAnimation 1.5s infinite ease-in-out;
+            box-shadow: var(--matrix-glow);
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 3s;
+        }
+
+        @keyframes typingAnimation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scrollbar customization */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--matrix-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--matrix-green);
+            border-radius: 5px;
+        }
+
+        /* Welcome screen */
+        .chat-welcome {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--matrix-green);
+        }
+
+        .welcome-title {
+            color: var(--matrix-green);
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            text-shadow: var(--matrix-glow);
+            text-align: center;
+        }
+
+        .welcome-button {
+            padding: 1rem 3rem;
+            background-color: transparent;
+            border: 2px solid var(--matrix-green);
+            color: var(--matrix-green);
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--matrix-glow);
+        }
+
+        .welcome-button:hover {
+            background-color: var(--matrix-green);
+            color: var(--matrix-dark);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--matrix-green);
+        }
+
+        .welcome-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 255, 65, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .welcome-button:hover::before {
+            left: 100%;
         }
 
         /* Media queries for responsiveness */
@@ -544,7 +819,74 @@
             const chatInput = document.querySelector('.chat-input');
             const sendButton = document.querySelector('.chat-send-button');
             const typingIndicator = document.querySelector('.typing-indicator');
+            const container = document.querySelector('.container');
+            const infoToggle = document.querySelector('.info-toggle');
+            const matrixFade = document.createElement('div');
             
+            // Setup matrix fade
+            matrixFade.className = 'matrix-fade';
+            document.body.appendChild(matrixFade);
+
+            // Matrix characters
+            const matrixChars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ/*-+<>[]{}=_\\|abcdefghijklmnopqrstuvwxyz';
+
+            // Toggle chat window
+            chatToggle.addEventListener('click', function() {
+                chatWindow.classList.toggle('open');
+                
+                if (chatWindow.classList.contains('open')) {
+                    window.parent.postMessage('chat-opened', '*');
+                } else {
+                    window.parent.postMessage('chat-closed', '*');
+                }
+            });
+
+            function createMatrixEffect(showing) {
+                matrixFade.innerHTML = '';
+                matrixFade.classList.add('active');
+
+                const width = window.innerWidth;
+                const columns = Math.floor(width / 20);
+
+                for (let i = 0; i < columns; i++) {
+                    const delay = Math.random() * 1.5;
+                    const x = i * 20;
+
+                    for (let j = 0; j < 10; j++) {
+                        const char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+                        const element = document.createElement('span');
+                        element.className = 'matrix-character';
+                        element.textContent = char;
+                        element.style.left = `${x}px`;
+                        element.style.top = '0';
+                        element.style.animationDelay = `${delay + (j * 0.1)}s`;
+                        matrixFade.appendChild(element);
+                    }
+                }
+
+                setTimeout(() => {
+                    matrixFade.classList.remove('active');
+                    if (!showing) {
+                        container.classList.add('hidden');
+                    } else {
+                        container.classList.remove('hidden');
+                    }
+                }, 2000);
+            }
+
+            // Toggle info visibility com efeito Matrix
+            infoToggle.addEventListener('click', function() {
+                const isHidden = container.classList.contains('hidden');
+                createMatrixEffect(isHidden);
+                localStorage.setItem('fnwInfoVisible', isHidden);
+            });
+
+            // Recupera o estado salvo
+            const infoVisible = localStorage.getItem('fnwInfoVisible');
+            if (infoVisible === 'false') {
+                container.classList.add('hidden');
+            }
+
             // Webhook URL
             const webhookUrl = 'https://52fapypk.rcsrv.com/webhook/26c6bc9d-6a94-4c95-a5db-6f60615340c5';
             
@@ -553,11 +895,6 @@
                 'Hi there! 👋',
                 'I am the AGB. Which pill do you need today?'
             ];
-            
-            // Toggle chat window
-            chatToggle.addEventListener('click', function() {
-                chatWindow.classList.toggle('open');
-            });
             
             // Start conversation when welcome button is clicked
             welcomeButton.addEventListener('click', function() {
@@ -730,66 +1067,6 @@
                 
                 // Scroll to bottom
                 chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-
-            // Existing elements...
-            const container = document.querySelector('.container');
-            const infoToggle = document.querySelector('.info-toggle');
-            const header = container.querySelector('.header');
-            
-            // Criar elemento para o efeito Matrix
-            const matrixFade = document.createElement('div');
-            matrixFade.className = 'matrix-fade';
-            container.appendChild(matrixFade);
-
-            // Caracteres para o efeito Matrix
-            const matrixChars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ/*-+<>[]{}=_\\|abcdefghijklmnopqrstuvwxyz';
-
-            function createMatrixEffect(showing) {
-                matrixFade.innerHTML = '';
-                matrixFade.classList.add('active');
-
-                const width = container.offsetWidth;
-                const height = container.offsetHeight;
-                const columns = Math.floor(width / 20); // Espaçamento entre caracteres
-
-                for (let i = 0; i < columns; i++) {
-                    const delay = Math.random() * 1.5;
-                    const x = i * 20;
-
-                    for (let j = 0; j < 10; j++) { // Número de caracteres por coluna
-                        const char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
-                        const element = document.createElement('span');
-                        element.className = 'matrix-character';
-                        element.textContent = char;
-                        element.style.left = `${x}px`;
-                        element.style.top = '0';
-                        element.style.animationDelay = `${delay + (j * 0.1)}s`;
-                        matrixFade.appendChild(element);
-                    }
-                }
-
-                setTimeout(() => {
-                    matrixFade.classList.remove('active');
-                    if (!showing) {
-                        container.classList.add('hidden');
-                    } else {
-                        container.classList.remove('hidden');
-                    }
-                }, 2000);
-            }
-
-            // Toggle info visibility com efeito Matrix
-            infoToggle.addEventListener('click', function() {
-                const isHidden = container.classList.contains('hidden');
-                createMatrixEffect(isHidden);
-                localStorage.setItem('fnwInfoVisible', isHidden);
-            });
-
-            // Recupera o estado salvo
-            const infoVisible = localStorage.getItem('fnwInfoVisible');
-            if (infoVisible === 'false') {
-                container.classList.add('hidden');
             }
         });
     </script>
