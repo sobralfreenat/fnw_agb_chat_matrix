@@ -52,6 +52,8 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            z-index: 1000;
+            position: relative;
         }
 
         .chat-toggle:hover {
@@ -76,26 +78,25 @@
             height: 600px;
             max-width: 95vw;
             max-height: 80vh;
-            background-color: rgba(0, 0, 0, 0.85);
+            background-color: rgba(0, 0, 0, 0.95);
             border: 1px solid var(--matrix-green);
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            opacity: 0.01;
+            opacity: 0;
             transform: translateY(20px) scale(0.9);
             pointer-events: none;
             transition: all 0.3s ease;
+            z-index: 1001;
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
         }
 
         .chat-window.open {
-            opacity: .91;
+            opacity: 1;
             transform: translateY(0) scale(1);
-            width: 370px;
-            height: 600px;
             pointer-events: all;
             backdrop-filter: blur(68px);
             -webkit-backdrop-filter: blur(68px);
@@ -380,27 +381,30 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 1;
+            z-index: -1; /* Coloca o container atrás de tudo */
             transition: opacity 0.5s ease;
             pointer-events: none;
+            background: rgba(0, 0, 0, 0.85);
         }
 
         .container .header {
             position: relative;
-            pointer-events: auto;
+            pointer-events: none;
+            padding: 20px;
+            color: var(--matrix-green);
         }
 
         .container.hidden {
             opacity: 0;
         }
 
-        /* Chat container - Mantendo independente do container principal */
+        /* Chat container */
         .chat-container {
             position: fixed;
             bottom: 20px;
             right: 20px;
             z-index: 1000;
-            pointer-events: auto;
+            pointer-events: all;
         }
 
         /* Matrix effect container */
@@ -438,261 +442,6 @@
                 transform: translateY(100vh);
                 opacity: 0;
             }
-        }
-
-        /* Ensure chat window stays above matrix effect */
-        .chat-window {
-            z-index: 1001;
-        }
-
-        .chat-window.open {
-            opacity: .91;
-            transform: translateY(0) scale(1);
-            pointer-events: all;
-        }
-
-        .chat-header {
-            padding: 1rem;
-            background-color: rgba(0, 0, 0, 0.95);
-            border-bottom: 1px solid var(--matrix-green);
-            display: flex;
-            align-items: center;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .chat-header-logo {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-            border: 2px solid var(--matrix-green);
-            box-shadow: var(--matrix-glow);
-        }
-
-        .chat-title {
-            color: var(--matrix-green);
-            margin: 0;
-            font-size: 1.4em;
-            text-shadow: var(--matrix-glow);
-        }
-
-        .chat-subtitle {
-            color: var(--subtitle-color);
-            margin: 0;
-            font-size: 0.9em;
-            opacity: 0.8;
-        }
-
-        /* Messages area */
-        .chat-messages {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            display: none;
-            background-color: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-
-        .chat-messages.active {
-            display: block;
-        }
-
-        .message {
-            max-width: 80%;
-            margin-bottom: 10px;
-            padding: 12px;
-            border-radius: 5px;
-            border: 1px solid var(--matrix-green);
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .message-bot {
-            background-color: rgba(0, 255, 65, 0.1);
-            color: var(--bot-message-color);
-            margin-right: 48px;
-            box-shadow: var(--matrix-glow);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-        }
-
-        .message-user {
-            background-color: rgba(10, 31, 10, 0.8);
-            color: var(--matrix-green);
-            margin-left: auto;
-            border: 1px solid var(--matrix-green);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-        }
-
-        /* Input area */
-        .chat-input-container {
-            padding: 12px;
-            background-color: rgba(0, 0, 0, 0.95);
-            border-top: 1px solid var(--matrix-green);
-            display: none;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .chat-input-container.active {
-            display: flex;
-        }
-
-        .chat-input {
-            flex: 1;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.8);
-            border: 1px solid var(--matrix-green);
-            border-radius: 5px;
-            color: var(--matrix-green);
-            font-family: 'Courier New', monospace;
-            outline: none;
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-        }
-
-        .chat-input:focus {
-            box-shadow: var(--matrix-glow);
-        }
-
-        .chat-send-button {
-            width: 36px;
-            height: 36px;
-            margin-left: 10px;
-            background-color: transparent;
-            border: 1px solid var(--matrix-green);
-            border-radius: 5px;
-            color: var(--matrix-green);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .chat-send-button:hover:not(:disabled) {
-            background-color: var(--matrix-green);
-            color: var(--matrix-dark);
-            box-shadow: var(--matrix-glow);
-        }
-
-        /* Typing indicator */
-        .typing-indicator {
-            display: none;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .typing-indicator.active {
-            display: flex;
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--matrix-green);
-            border-radius: 50%;
-            margin: 4 2px;
-            animation: typingAnimation 1.5s infinite ease-in-out;
-            box-shadow: var(--matrix-glow);
-        }
-
-        .typing-dot:nth-child(2) {
-            animation-delay: 0.5s;
-        }
-
-        .typing-dot:nth-child(3) {
-            animation-delay: 3s;
-        }
-
-        @keyframes typingAnimation {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.5); }
-            100% { transform: scale(1); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Scrollbar customization */
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--matrix-dark);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--matrix-green);
-            border-radius: 5px;
-        }
-
-        /* Welcome screen */
-        .chat-welcome {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            background-color: rgba(0, 0, 0, 0.9);
-            border: 1px solid var(--matrix-green);
-        }
-
-        .welcome-title {
-            color: var(--matrix-green);
-            margin-bottom: 2rem;
-            font-size: 1.5rem;
-            text-shadow: var(--matrix-glow);
-            text-align: center;
-        }
-
-        .welcome-button {
-            padding: 1rem 3rem;
-            background-color: transparent;
-            border: 2px solid var(--matrix-green);
-            color: var(--matrix-green);
-            font-family: 'Courier New', monospace;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--matrix-glow);
-        }
-
-        .welcome-button:hover {
-            background-color: var(--matrix-green);
-            color: var(--matrix-dark);
-            transform: scale(1.05);
-            box-shadow: 0 0 20px var(--matrix-green);
-        }
-
-        .welcome-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(0, 255, 65, 0.2),
-                transparent
-            );
-            transition: 0.5s;
-        }
-
-        .welcome-button:hover::before {
-            left: 100%;
         }
 
         /* Media queries for responsiveness */
@@ -834,7 +583,11 @@
             chatToggle.addEventListener('click', function() {
                 chatWindow.classList.toggle('open');
                 
+                // Show welcome screen when opening
                 if (chatWindow.classList.contains('open')) {
+                    if (!chatMessages.classList.contains('active')) {
+                        chatWelcome.style.display = 'flex';
+                    }
                     window.parent.postMessage('chat-opened', '*');
                 } else {
                     window.parent.postMessage('chat-closed', '*');
