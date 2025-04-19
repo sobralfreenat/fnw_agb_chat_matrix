@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrix Chat - Agent Bourne 2.7</title>
+    <title>Matrix Chat - Agent Bourne 3.1</title>
     <style>
         :root {
             /* Matrix theme colors */
@@ -24,9 +25,8 @@
             font-family: 'Courier New', monospace;
             background: none(--matrix-dark);
             color: var(--matrix-green);
-           /* min-height: 100vh; */
-			opacity: 0.77;
-		 -webkit-backdrop-filter: blur(8px);
+            opacity: 0.77;
+            -webkit-backdrop-filter: blur(8px);
         }
 
         /* Chat container */
@@ -35,8 +35,8 @@
             bottom: 20px;
             right: 20px;
             z-index: 1000;
-			opacity: 1.99;
-		 -webkit-backdrop-filter: blur(8px);
+            opacity: 1.99;
+            -webkit-backdrop-filter: blur(8px);
         }
 
         /* Chat toggle button */
@@ -81,21 +81,14 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            opacity: 0.01;
-            transform: translateY(20px) scale(0.9);
-            pointer-events: none;
-            transition: all 0.3s ease;
+            display: none; /* Inicialmente oculto - ALTERADO */
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
         }
 
-        .chat-window.open {
-            opacity: .99;
-            transform: translateY(0) scale(1);
-			 width: 370px;
-            height: 600px;
-            pointer-events: all;
-			 backdrop-filter: blur(18px);
+        .chat-window.visible {
+            display: flex; /* Mostrar quando tiver a classe visible - ALTERADO */
+            backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(68px);
         }
 
@@ -155,6 +148,10 @@
             border-radius: 5px;
             border: 1px solid var(--matrix-green);
             animation: fadeIn 0.3s ease-out;
+            /* Adicionado para melhorar a legibilidade do texto */
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
         .message-bot {
@@ -361,12 +358,12 @@
     <!-- Container do chat -->
     <div class="chat-container">
         <!-- Botão para abrir/fechar o chat -->
-        <div class="chat-toggle">
+        <div class="chat-toggle" id="toggleButton" onclick="toggleChat()">
             <img src="https://d1yei2z3i6k35z.cloudfront.net/3119789/67f9b8f071647_avatar.webp" alt="Logo">
         </div>
 
         <!-- Janela do chat -->
-        <div class="chat-window">
+        <div class="chat-window" id="chatWindow">
             <!-- Cabeçalho do chat -->
             <div class="chat-header">
                 <img class="chat-header-logo" src="https://d1yei2z3i6k35z.cloudfront.net/3119789/67f9b8f071647_avatar.webp" alt="Logo">
@@ -377,15 +374,15 @@
             </div>
 
             <!-- Tela de boas-vindas -->
-            <div class="chat-welcome">
+            <div class="chat-welcome" id="chatWelcome">
                 <h3 class="welcome-title">Welcome to AGB Chat</h3>
-                <button class="welcome-button">Start</button>
+                <button class="welcome-button" onclick="startChat()">Start</button>
             </div>
 
             <!-- Área de mensagens -->
-            <div class="chat-messages">
+            <div class="chat-messages" id="chatMessages">
                 <!-- Mensagens aparecerão aqui -->
-                <div class="typing-indicator">
+                <div class="typing-indicator" id="typingIndicator">
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
@@ -393,223 +390,249 @@
             </div>
 
             <!-- Área de entrada de texto -->
-            <div class="chat-input-container">
-                <input type="text" class="chat-input" placeholder="Type your message...">
-                <button class="chat-send-button">
+            <div class="chat-input-container" id="chatInputContainer">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Type your message...">
+                <button class="chat-send-button" id="sendButton" onclick="sendMessage()">
                     <svg viewBox="0 0 24 24">
                         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
                     </svg>
                 </button>
             </div>
-
-            <!-- Rodapé do chat 
-            <div class="chat-footer">
-                <p>FNW Assessoria Digital<br>  © 2025 | + 55 11 9 11 59 50 28
-            </div>
         </div>
-    </div>-->
+    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Elements
-            const chatToggle = document.querySelector('.chat-toggle');
-            const chatWindow = document.querySelector('.chat-window');
-            const chatWelcome = document.querySelector('.chat-welcome');
-            const welcomeButton = document.querySelector('.welcome-button');
-            const chatMessages = document.querySelector('.chat-messages');
-            const chatInputContainer = document.querySelector('.chat-input-container');
-            const chatInput = document.querySelector('.chat-input');
-            const sendButton = document.querySelector('.chat-send-button');
-            const typingIndicator = document.querySelector('.typing-indicator');
+        // Verificar se o JavaScript está funcionando
+        console.log("JavaScript carregado com sucesso");
+        
+        // Função para alternar a visibilidade do chat - MODIFICADA
+        function toggleChat() {
+            console.log("Botão de toggle clicado");
+            var chatWindow = document.getElementById("chatWindow");
+            if (chatWindow.classList.contains("visible")) {
+                chatWindow.classList.remove("visible");
+                console.log("Chat fechado");
+            } else {
+                chatWindow.classList.add("visible");
+                console.log("Chat aberto");
+            }
+        }
+        
+        // Função para iniciar o chat
+        function startChat() {
+            console.log("Start chat clicked");
+            const chatWelcome = document.getElementById('chatWelcome');
+            const chatMessages = document.getElementById('chatMessages');
+            const chatInputContainer = document.getElementById('chatInputContainer');
             
-            // Webhook URL
-         	// const webhookUrl = 'https://n8n-1-j80r.onrender.com:5678/webhook/26c6bc9d-6a94-4c95-a5db-6f60615340c5';
-			const webhookUrl = 'https://52fapypk.rcsrv.com/webhook/26c6bc9d-6a94-4c95-a5db-6f60615340c5';
-		
+            chatWelcome.style.display = 'none';
+            chatMessages.classList.add('active');
+            chatInputContainer.classList.add('active');
             
-            // Initial messages
+            // Mensagens iniciais
             const initialMessages = [
                 'Hi there! 👋',
                 'I am the AGB. Which pill do you need today?'
             ];
             
-            // Toggle chat window
-            chatToggle.addEventListener('click', function() {
-                chatWindow.classList.toggle('open');
-            });
+            // Mostrar mensagens iniciais
+            setTimeout(() => {
+                initialMessages.forEach((message, index) => {
+                    setTimeout(() => {
+                        addMessage(message, 'bot');
+                    }, index * 1000);
+                });
+            }, 500);
+        }
+        
+        // Função para enviar mensagem
+        function sendMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const messageText = chatInput.value.trim();
+            if (!messageText) return;
             
-            // Start conversation when welcome button is clicked
-            welcomeButton.addEventListener('click', function() {
-                chatWelcome.style.display = 'none';
-                chatMessages.classList.add('active');
-                chatInputContainer.classList.add('active');
+            // Desabilitar input e botão enquanto espera resposta
+            chatInput.disabled = true;
+            document.getElementById('sendButton').disabled = true;
+            
+            // Adicionar mensagem do usuário ao chat
+            addMessage(messageText, 'user');
+            chatInput.value = '';
+            
+            // Mostrar indicador de digitação
+            document.getElementById('typingIndicator').classList.add('active');
+            
+            // Criar XMLHttpRequest
+            const xhr = new XMLHttpRequest();
+            
+            // Definir timeout
+            xhr.timeout = 30000; // 30 segundos
+            
+            // Configurar manipuladores de eventos
+            xhr.onload = function() {
+                // Esconder indicador de digitação
+                document.getElementById('typingIndicator').classList.remove('active');
                 
-                // Show initial messages
-                setTimeout(() => {
-                    initialMessages.forEach((message, index) => {
-                        setTimeout(() => {
-                            addMessage(message, 'bot');
-                        }, index * 1000);
-                    });
-                }, 500);
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        // Primeiro tenta analisar como JSON
+                        const responseText = xhr.responseText;
+                        
+                        // Verifica se a resposta está vazia
+                        if (!responseText || responseText.trim() === '') {
+                            addMessage('Não recebi nenhuma resposta do servidor.', 'bot');
+                            return;
+                        }
+                        
+                        // Tenta processar como JSON
+                        try {
+                            const data = JSON.parse(responseText);
+                            
+                            // Verifica se a resposta contém uma mensagem
+                            if (data.message) {
+                                addMessage(data.message, 'bot');
+                            } else if (typeof data === 'string') {
+                                // Se o JSON for uma string direta
+                                addMessage(data, 'bot');
+                            } else if (Array.isArray(data)) {
+                                // Se a resposta for um array de mensagens
+                                data.forEach((message, index) => {
+                                    if (typeof message === 'string') {
+                                        setTimeout(() => {
+                                            addMessage(message, 'bot');
+                                        }, index * 1000);
+                                    } else if (message.message) {
+                                        setTimeout(() => {
+                                            addMessage(message.message, 'bot');
+                                        }, index * 1000);
+                                    }
+                                });
+                            } else if (typeof data === 'object') {
+                                // Se for um objeto, verifica se há alguma propriedade útil
+                                const possibleKeys = ['message', 'text', 'response', 'reply', 'answer'];
+                                let foundMessage = false;
+                                
+                                for (const key of possibleKeys) {
+                                    if (data[key] && typeof data[key] === 'string') {
+                                        addMessage(data[key], 'bot');
+                                        foundMessage = true;
+                                        break;
+                                    }
+                                }
+                                
+                                if (!foundMessage) {
+                                    // Último recurso: exibir o JSON como texto
+                                    addMessage('Resposta do servidor: ' + JSON.stringify(data), 'bot');
+                                }
+                            } else {
+                                // Último recurso: exibir o JSON como texto
+                                addMessage('Resposta do servidor: ' + JSON.stringify(data), 'bot');
+                            }
+                        } catch (e) {
+                            // Se não for JSON válido, trata como texto simples
+                            console.warn('Resposta não é um JSON válido, tratando como texto:', e);
+                            
+                            // Tenta exibir a resposta como texto simples
+                            if (responseText && typeof responseText === 'string') {
+                                addMessage(responseText, 'bot');
+                            } else {
+                                addMessage('Recebi uma resposta, mas não consegui processá-la.', 'bot');
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Erro ao processar resposta:', e);
+                        addMessage('Ocorreu um erro ao processar a resposta.', 'bot');
+                    }
+                } else {
+                    addMessage(`Erro ${xhr.status}: ${xhr.statusText}. Por favor, tente novamente.`, 'bot');
+                }
+            };
+            
+            xhr.onerror = function() {
+                console.error('Erro na requisição');
+                document.getElementById('typingIndicator').classList.remove('active');
+                addMessage('Não foi possível conectar ao servidor. Verifique sua conexão.', 'bot');
+            };
+            
+            xhr.ontimeout = function() {
+                document.getElementById('typingIndicator').classList.remove('active');
+                addMessage('A resposta está demorando mais do que o esperado. Por favor, aguarde ou tente novamente mais tarde.', 'bot');
+            };
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    // Re-enable input and button after response
+                    chatInput.disabled = false;
+                    document.getElementById('sendButton').disabled = false;
+                    chatInput.focus();
+                }
+            };
+            
+            // Webhook URL
+            const webhookUrl = 'https://52fapypk.rcsrv.com/webhook/26c6bc9d-6a94-4c95-a5db-6f60615340c5';
+            
+            // Abrir conexão e enviar a requisição
+            xhr.open('POST', webhookUrl, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            
+            // Montar os dados a serem enviados
+            const data = JSON.stringify({
+                message: messageText,
+                language: 'pt'
             });
             
-            // Send message on button click or enter key
-            sendButton.addEventListener('click', sendMessage);
+            // Enviar a requisição
+            xhr.send(data);
+        }
+        
+        // Function to add message to chat - MODIFICADA para resolver o problema dos "clusters"
+        function addMessage(text, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', `message-${sender}`);
+            
+            // Processar o texto para preservar formatação
+            if (text) {
+                // Criar um elemento para cada linha do texto
+                const container = document.createElement('div');
+                
+                // Dividir o texto em linhas
+                const lines = text.split('\n');
+                
+                // Para cada linha, criar um elemento de texto e adicionar quebras de linha
+                lines.forEach((line, index) => {
+                    // Adicionar o texto da linha
+                    container.appendChild(document.createTextNode(line));
+                    
+                    // Adicionar uma quebra de linha após cada linha (exceto a última)
+                    if (index < lines.length - 1) {
+                        container.appendChild(document.createElement('br'));
+                    }
+                });
+                
+                // Adicionar o conteúdo formatado ao elemento de mensagem
+                messageElement.appendChild(container);
+            } else {
+                messageElement.textContent = "Mensagem vazia";
+            }
+            
+            // Insert before typing indicator
+            const chatMessages = document.getElementById('chatMessages');
+            const typingIndicator = document.getElementById('typingIndicator');
+            chatMessages.insertBefore(messageElement, typingIndicator);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Adicionar evento de tecla Enter para enviar mensagem quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM carregado completamente");
+            const chatInput = document.getElementById('chatInput');
             chatInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     sendMessage();
                 }
             });
-            
-            // Function to send message
-            function sendMessage() {
-                const messageText = chatInput.value.trim();
-                if (!messageText) return;
-                
-                // Disable input and button while waiting for response
-                chatInput.disabled = true;
-                sendButton.disabled = true;
-                
-                // Add user message to chat
-                addMessage(messageText, 'user');
-                chatInput.value = '';
-                
-                // Show typing indicator
-                typingIndicator.classList.add('active');
-                
-                // Criar XMLHttpRequest
-                const xhr = new XMLHttpRequest();
-                
-                // Definir timeout
-                xhr.timeout = 30000; // 30 segundos
-                
-                // Configurar manipuladores de eventos
-                xhr.onload = function() {
-                    // Hide typing indicator
-                    typingIndicator.classList.remove('active');
-                    
-                    if (xhr.status >= 200 && xhr.status < 300) {
-                        try {
-                            // Primeiro tenta analisar como JSON
-                            const responseText = xhr.responseText;
-                            
-                            // Verifica se a resposta está vazia
-                            if (!responseText || responseText.trim() === '') {
-                                addMessage('Resposta vazia recebida do servidor.', 'bot');
-                                return;
-                            }
-                            
-                            // Tenta processar como JSON
-                            try {
-                                const data = JSON.parse(responseText);
-                                
-                                // Verifica se a resposta contém uma mensagem
-                                if (data.message) {
-                                    addMessage(data.message, 'bot');
-                                } else if (typeof data === 'string') {
-                                    // Se o JSON for uma string direta
-                                    addMessage(data, 'bot');
-                                } else if (Array.isArray(data)) {
-                                    // Se a resposta for um array de mensagens
-                                    data.forEach((message, index) => {
-                                        if (typeof message === 'string') {
-                                            setTimeout(() => {
-                                                addMessage(message, 'bot');
-                                            }, index * 1000);
-                                        } else if (message.message) {
-                                            setTimeout(() => {
-                                                addMessage(message.message, 'bot');
-                                            }, index * 1000);
-                                        }
-                                    });
-                                } else if (typeof data === 'object') {
-                                    // Se for um objeto, verifica se há alguma propriedade útil
-                                    const possibleKeys = ['message', 'text', 'response', 'reply', 'answer'];
-                                    let foundMessage = false;
-                                    
-                                    for (const key of possibleKeys) {
-                                        if (data[key] && typeof data[key] === 'string') {
-                                            addMessage(data[key], 'bot');
-                                            foundMessage = true;
-                                            break;
-                                        }
-                                    }
-                                    
-                                    if (!foundMessage) {
-                                        // Último recurso: exibir o JSON como texto
-                                        addMessage('Resposta do servidor: ' + JSON.stringify(data), 'bot');
-                                    }
-                                } else {
-                                    // Último recurso: exibir o JSON como texto
-                                    addMessage('Resposta do servidor: ' + JSON.stringify(data), 'bot');
-                                }
-                            } catch (e) {
-                                // Se não for JSON válido, trata como texto simples
-                                console.warn('Resposta não é um JSON válido, tratando como texto:', e);
-                                
-                                // Tenta exibir a resposta como texto simples
-                                if (responseText && typeof responseText === 'string') {
-                                    addMessage(responseText, 'bot');
-                                } else {
-                                    addMessage('Recebi uma resposta, mas não consegui processá-la.', 'bot');
-                                }
-                            }
-                        } catch (e) {
-                            console.error('Erro ao processar resposta:', e);
-                            addMessage('Ocorreu um erro ao processar a resposta.', 'bot');
-                        }
-                    } else {
-                        addMessage(`Erro ${xhr.status}: ${xhr.statusText}. Por favor, tente novamente.`, 'bot');
-                    }
-                };
-                
-                xhr.onerror = function() {
-                    console.error('Erro na requisição');
-                    typingIndicator.classList.remove('active');
-                    addMessage('Não foi possível conectar ao servidor. Verifique sua conexão.', 'bot');
-                };
-                
-                xhr.ontimeout = function() {
-                    typingIndicator.classList.remove('active');
-                    addMessage('A resposta está demorando mais do que o esperado. Por favor, aguarde ou tente novamente mais tarde.', 'bot');
-                };
-                
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState === 4) {
-                        // Re-enable input and button after response
-                        chatInput.disabled = false;
-                        sendButton.disabled = false;
-                        chatInput.focus();
-                    }
-                };
-                
-                // Abrir conexão e enviar a requisição
-                xhr.open('POST', webhookUrl, true);
-                xhr.setRequestHeader('Content-Type', 'application/json');
-                
-                // Montar os dados a serem enviados
-                const data = JSON.stringify({
-                    message: messageText,
-                    language: 'pt'
-                });
-                
-                // Enviar a requisição
-                xhr.send(data);
-            }
-            
-            // Function to add message to chat
-            function addMessage(text, sender) {
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message', `message-${sender}`);
-                messageElement.textContent = text;
-                
-                // Insert before typing indicator
-                chatMessages.insertBefore(messageElement, typingIndicator);
-                
-                // Scroll to bottom
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
         });
     </script>
 </body>
